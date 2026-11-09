@@ -1,0 +1,9 @@
+{
+  "name": "uniformidad",
+  "version": "1.0.0",
+  "description": "Control de stock de camisetas, sudaderas y pañoletas",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  }
+}

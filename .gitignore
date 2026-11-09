@@ -1,0 +1,6 @@
+data.json
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+node_modules/

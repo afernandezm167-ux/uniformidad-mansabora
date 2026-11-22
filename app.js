@@ -154,60 +154,47 @@ function pintarStock() {
   const entregas = estado.personas.flatMap(x => x.entregas);
   const sinPagar = entregas.filter(e => !e.pagado).length;
 
-  const kpis = Object.entries(PRODUCTOS).map(([p, d]) => {
+  const resumen = Object.entries(PRODUCTOS).map(([p, d]) => {
     const ag = agotadasDe(p);
-    return `<div class="kpi ${p}">
-      <div class="kpi-cab">${d.nombre}<div class="icono">${ICONOS[p]}</div></div>
-      <div class="valor">${totalDe(p)}</div>
-      <div class="detalle">${ag ? `<b>${ag} ${ag > 1 ? 'tallas agotadas' : 'talla agotada'}</b>` : 'Todas las tallas con stock'}</div>
-    </div>`;
-  }).join('') + `<div class="kpi deuda">
-      <div class="kpi-cab">Pendiente de pago
-        <div class="icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div></div>
-      <div class="valor">${sinPagar}</div>
-      <div class="detalle">de ${entregas.length} ${entregas.length === 1 ? 'entrega' : 'entregas'} realizadas</div>
-    </div>`;
+    return `<div class="dato"><span>${d.nombre}</span><b>${totalDe(p)}</b>
+      <small class="${ag ? 'mal' : ''}">${ag ? `${ag} ${ag > 1 ? 'tallas agotadas' : 'talla agotada'}` : 'Todas las tallas con stock'}</small></div>`;
+  }).join('') + `<div class="dato"><span>Sin pagar</span><b>${sinPagar}</b>
+      <small>de ${entregas.length} ${entregas.length === 1 ? 'entrega' : 'entregas'}</small></div>`;
 
-  const max = Math.max(12, ...['camiseta', 'sudadera'].flatMap(p => TALLAS.map(t => estado.stock[p][t] || 0)));
-  const celda = (p, t) => {
+  const fila = (p, t) => {
     const n = estado.stock[p][t] || 0;
-    return `<td><div class="celda ${p} ${nivel(n)}">
+    return `<div class="fila-talla ${nivel(n)}">
+      <span class="chip-talla">${esc(t)}</span>
       ${stepper(p, t, n)}
-      <div class="etiquetas"><span class="estado ${nivel(n)}">${textoNivel(n)}</span>${etiquetaFaltan(p, t)}</div>
-      <div class="barra"><i style="width:${Math.min(100, (n / max) * 100)}%"></i></div>
-    </div></td>`;
+      <span class="estado-talla">${etiquetaFaltan(p, t)}${textoNivel(n)}</span>
+    </div>`;
   };
-  const cabecera = p => `<th><div class="th ${p}"><div class="icono">${ICONOS[p]}</div>${PRODUCTOS[p].nombre}<em>${totalDe(p)} uds.</em></div></th>`;
+  const carnePrenda = p => `<article class="carne ${p}"><div class="carne-cuerpo">
+      <div class="carne-cab"><div><h2>${PRODUCTOS[p].nombre}</h2><div class="carne-sub">Tallas de la 6 a la 2XL</div></div>
+        ${agotadasDe(p) ? `<span class="sello debe">${agotadasDe(p)} agotada${agotadasDe(p) > 1 ? 's' : ''}</span>` : '<span class="sello">Completo</span>'}</div>
+      <div class="tallas">${PRODUCTOS[p].tallas.map(t => fila(p, t)).join('')}</div>
+      <div class="total-carne separador"><span>Total</span><b>${totalDe(p)}</b></div>
+    </div></article>`;
 
-  const tabla = `<div class="caja">
-    <div class="caja-cab">
-      <div><h2>Camisetas y sudaderas</h2><p>Existencias por talla, de la 6 a la 2XL</p></div>
-      <div class="leyenda"><span><i class="punto"></i>Disponible</span><span><i class="punto bajo"></i>Menos de ${BAJO}</span><span><i class="punto cero"></i>Agotado</span></div>
-    </div>
-    <table>
-      <thead><tr><th>Talla</th>${cabecera('camiseta')}${cabecera('sudadera')}</tr></thead>
-      <tbody>${TALLAS.map(t => `<tr><td class="talla"><span class="pastilla-talla">${esc(t)}</span></td>${celda('camiseta', t)}${celda('sudadera', t)}</tr>`).join('')}</tbody>
-      <tfoot><tr><td>Total</td><td class="num">${totalDe('camiseta')} camisetas</td><td class="num">${totalDe('sudadera')} sudaderas</td></tr></tfoot>
-    </table>
-  </div>`;
-
-  const panoletas = `<div class="caja">
-    <div class="caja-cab"><div><h2>Pañoletas</h2><p>Tamaño pequeño y grande</p></div></div>
-    <div class="panoletas">${PRODUCTOS.panoleta.tallas.map(t => {
-      const n = estado.stock.panoleta[t] || 0;
-      return `<div class="pano panoleta">
-        <div class="icono">${ICONOS.panoleta}</div>
-        <div class="datos"><b>${t === 'Pequeña' ? 'Pequeñas' : 'Grandes'}</b><div class="etiquetas"><span class="estado ${nivel(n)}">${textoNivel(n)}</span>${etiquetaFaltan('panoleta', t)}</div></div>
-        <div class="grande">${n}</div>
-        ${stepper('panoleta', t, n)}
-      </div>`;
-    }).join('')}</div>
-  </div>`;
+  const panoletas = `<article class="carne panoleta"><div class="carne-cuerpo">
+      <div class="carne-cab"><div><h2>Pañoletas</h2><div class="carne-sub">Pequeñas y grandes</div></div>
+        ${agotadasDe('panoleta') ? '<span class="sello debe">Agotada</span>' : '<span class="sello">Completo</span>'}</div>
+      <div>${PRODUCTOS.panoleta.tallas.map(t => {
+        const n = estado.stock.panoleta[t] || 0;
+        return `<div class="pano ${nivel(n)}">
+          <span class="nombre-pano">${t === 'Pequeña' ? 'Pequeñas' : 'Grandes'}<small>${textoNivel(n)}${porDar('panoleta', t) ? ` · ${porDar('panoleta', t)} por dar` : ''}</small></span>
+          <span class="grande">${n}</span>
+          ${stepper('panoleta', t, n)}
+        </div>`;
+      }).join('')}</div>
+      <div class="total-carne separador"><span>Total</span><b>${totalDe('panoleta')}</b></div>
+    </div></article>`;
 
   // El foco se conserva si se está escribiendo en un campo
   const activo = document.activeElement;
   const clave = activo && activo.matches('#stock-contenido input') ? [activo.dataset.p, activo.dataset.t] : null;
-  $('#stock-contenido').innerHTML = `<div class="kpis">${kpis}</div>${tabla}${panoletas}`;
+  $('#stock-contenido').innerHTML = `<div class="resumen">${resumen}</div>
+    <div class="stock-rejilla">${carnePrenda('camiseta')}${carnePrenda('sudadera')}${panoletas}</div>`;
   if (clave) {
     const i = [...document.querySelectorAll('#stock-contenido input')].find(x => x.dataset.p === clave[0] && x.dataset.t === clave[1]);
     if (i) i.focus();
@@ -264,52 +251,61 @@ function pintarPersonas() {
   // Se conserva lo que se está escribiendo en los formularios de entrega
   const borradores = {};
   document.querySelectorAll('form.nueva').forEach(f => {
-    borradores[f.dataset.persona] = { producto: f.elements.producto.value, talla: f.elements.talla.value, cantidad: f.elements.cantidad.value, pagado: f.elements.pagado.checked };
+    borradores[f.dataset.persona] = { abierto: f.closest('details').open, producto: f.elements.producto.value, talla: f.elements.talla.value, cantidad: f.elements.cantidad.value, pagado: f.elements.pagado.checked };
   });
 
   $('#lista-personas').innerHTML = lista.map(per => {
     const debe = per.entregas.filter(e => !e.pagado).length;
     const unidades = per.entregas.filter(entregada).reduce((s, e) => s + e.cantidad, 0);
     const faltan = per.entregas.filter(e => !entregada(e)).length;
-    const insignia = (faltan ? `<span class="insignia aviso">${faltan} por entregar</span>` : '') +
-      (!per.entregas.length ? '<span class="insignia nada">Sin entregas</span>' :
-        debe ? `<span class="insignia mal">${debe} sin pagar</span>` : '<span class="insignia ok">Todo pagado</span>');
-    const color = ['camiseta', 'sudadera', 'panoleta'][[...per.nombre].reduce((s, c) => s + c.charCodeAt(0), 0) % 3];
+    const sello = !per.entregas.length ? '<span class="sello nada">Sin nada</span>'
+      : debe ? `<span class="sello debe">Debe ${debe}</span>`
+      : faltan ? `<span class="sello pend">Falta ${faltan}</span>`
+      : '<span class="sello">Al día</span>';
+    const color = 'c' + ([...per.nombre].reduce((s, c) => s + c.charCodeAt(0), 0) % 5);
 
-    const entregas = per.entregas.length ? `<div class="entregas">${per.entregas.map(en => `
-      <div class="entrega ${en.producto}">
-        <div class="icono">${ICONOS[en.producto]}</div>
-        <span class="desc">${en.cantidad} × ${PRODUCTOS[en.producto].singular}<small>${en.producto === 'panoleta' ? 'tamaño' : 'talla'} ${esc(en.talla)}</small>${entregada(en) ? '' : '<span class="por-dar">Por entregar · sin stock</span>'}</span>
+    const prendas = per.entregas.length ? `<div class="prendas">${per.entregas.map(en => {
+      const tipo = !entregada(en) ? 'pend' : en.pagado ? '' : 'debe';
+      return `<div class="prenda ${tipo}">
+        <div class="prenda-cab">
+          <div><div class="prenda-nombre">${PRODUCTOS[en.producto].singular}</div>
+            <div class="prenda-talla">${esc(en.talla)}${en.cantidad > 1 ? ` <small>× ${en.cantidad}</small>` : ''}</div></div>
+          <button class="quitar" data-accion="quitar-entrega" data-persona="${per.id}" data-entrega="${en.id}" title="${entregada(en) ? 'Quitar y devolver al stock' : 'Quitar de la lista'}" aria-label="Quitar ${PRODUCTOS[en.producto].singular} ${esc(en.talla)}">✕</button>
+        </div>
         ${entregada(en) ? '' : `<button class="entregar" data-accion="entregar" data-persona="${per.id}" data-entrega="${en.id}">Entregar ahora</button>`}
-        <label class="interruptor">
-          <input type="checkbox" data-accion="pagar" data-persona="${per.id}" data-entrega="${en.id}" ${en.pagado ? 'checked' : ''}>
-          <span class="caja-check">${ICO_CHECK}</span>${en.pagado ? 'Pagado' : 'Pendiente'}
-        </label>
-        <button class="quitar" data-accion="quitar-entrega" data-persona="${per.id}" data-entrega="${en.id}" title="Quitar y devolver al stock" aria-label="Quitar entrega">✕</button>
-      </div>`).join('')}</div>` : '<div class="sin-entregas">Todavía no se le ha dado nada.</div>';
+        <label class="pago"><input type="checkbox" data-accion="pagar" data-persona="${per.id}" data-entrega="${en.id}" ${en.pagado ? 'checked' : ''}>${en.pagado ? 'Pagado' : 'Sin pagar'}</label>
+      </div>`;
+    }).join('')}</div>` : '<p class="sin-prendas">Todavía no se le ha dado nada.</p>';
 
-    return `<article class="persona">
-      <div class="persona-cab ${color}">
-        <div class="avatar">${esc([...per.nombre.trim()][0].toUpperCase())}</div>
-        <div class="quien"><h3>${esc(per.nombre)}</h3><div class="sub">${unidades} ${unidades === 1 ? 'artículo' : 'artículos'}</div></div>
-        ${insignia}
-        <button class="texto-boton" data-accion="borrar-persona" data-persona="${per.id}">Eliminar</button>
+    return `<article class="carne ${color}"><div class="carne-cuerpo">
+      <div class="carne-cab">
+        <div><h2>${esc(per.nombre)}</h2><div class="carne-sub">${unidades} ${unidades === 1 ? 'prenda entregada' : 'prendas entregadas'}</div></div>
+        ${sello}
       </div>
-      ${entregas}
-      <form class="nueva" data-persona="${per.id}">
-        <select name="producto">${Object.entries(PRODUCTOS).map(([k, v]) => `<option value="${k}">${v.singular[0].toUpperCase() + v.singular.slice(1)}</option>`).join('')}</select>
-        <select name="talla"></select>
-        <input type="number" name="cantidad" min="1" value="1" aria-label="Cantidad">
-        <label><input type="checkbox" name="pagado"> Ya ha pagado</label>
-        <button class="primario" data-modo="dar">Dar</button>
-        <button class="secundario" data-modo="pendiente" title="Apuntarlo para dárselo cuando haya stock">Apuntar por entregar</button>
-      </form>
-    </article>`;
+      ${prendas}
+      <details class="anadir separador" data-persona="${per.id}">
+        <summary>Añadir prenda</summary>
+        <form class="nueva" data-persona="${per.id}">
+          <select name="producto" aria-label="Prenda">${Object.entries(PRODUCTOS).map(([k, v]) => `<option value="${k}">${v.singular[0].toUpperCase() + v.singular.slice(1)}</option>`).join('')}</select>
+          <select name="talla" aria-label="Talla"></select>
+          <input type="number" name="cantidad" min="1" value="1" aria-label="Cantidad">
+          <label><input type="checkbox" name="pagado"> Ya ha pagado</label>
+          <div class="botones">
+            <button class="primario" data-modo="dar">Dar</button>
+            <button class="secundario" data-modo="pendiente" title="Apuntarlo para dárselo cuando haya stock">Apuntar pendiente</button>
+          </div>
+        </form>
+      </details>
+      <div class="pie-carne">
+        <span class="carne-sub">${per.entregas.length} ${per.entregas.length === 1 ? 'apunte' : 'apuntes'}</span>
+        <button class="texto-boton" data-accion="borrar-persona" data-persona="${per.id}">Eliminar ficha</button>
+      </div>
+    </div></article>`;
   }).join('');
 
   document.querySelectorAll('form.nueva').forEach(f => {
     const b = borradores[f.dataset.persona];
-    if (b) { f.elements.producto.value = b.producto; f.elements.cantidad.value = b.cantidad; f.elements.pagado.checked = b.pagado; }
+    if (b) { f.closest('details').open = b.abierto; f.elements.producto.value = b.producto; f.elements.cantidad.value = b.cantidad; f.elements.pagado.checked = b.pagado; }
     rellenarTallas(f, b && b.talla);
   });
 }
@@ -418,6 +414,18 @@ function pintarCamisas() {
   $('#c-filtros').innerHTML = opciones.map(([k, n, c]) =>
     `<button class="filtro ${cFiltro === k ? 'activo' : ''}" data-filtro="${k}">${n}<small>${c}</small></button>`).join('');
 
+  // Resumen: cuántas camisas hay de cada talla
+  const filas = TALLAS.map(t => {
+    const d = todas.filter(c => c.talla === t);
+    return { t, total: d.length, pagadas: d.filter(c => c.pagado).length, entregadas: d.filter(c => c.entregado).length };
+  }).filter(f => f.total);
+  const suma = k => filas.reduce((s, f) => s + f[k], 0);
+  $('#resumen-camisas').innerHTML = filas.length ? `<section class="encargo">
+    <h2>Camisas por talla</h2>
+    <p>${suma('total')} pedidas · ${suma('total') - suma('pagadas')} sin pagar · ${suma('total') - suma('entregadas')} por entregar</p>
+    <div class="encargo-tallas">${filas.map(f => `<div class="encargo-talla"><span>Talla ${esc(f.t)}</span><b>${f.total}</b><small>${f.pagadas} pagadas · ${f.entregadas} entregadas</small></div>`).join('')}</div>
+  </section>` : '';
+
   const q = cBusqueda.trim().toLowerCase();
   const lista = todas.filter(c => {
     if (q && !(c.nombre.toLowerCase().includes(q) || c.seccion.toLowerCase().includes(q))) return false;
@@ -435,27 +443,37 @@ function pintarCamisas() {
     return;
   }
 
-  $('#lista-camisas').innerHTML = `<div class="caja"><table class="tabla-camisas">
-    <thead><tr><th>Niño/a</th><th>Talla</th><th>Sección</th><th>Método de pago</th><th>Pago</th><th>Entrega</th><th>Insignias</th><th></th></tr></thead>
-    <tbody>${lista.map(c => `<tr>
-      <td><b>${esc(c.nombre)}</b></td>
-      <td><span class="pastilla-talla">${esc(c.talla)}</span></td>
-      <td>${esc(c.seccion)}</td>
-      <td>${esc(c.metodo)}</td>
-      <td><label class="interruptor">
-        <input type="checkbox" data-camisa="${c.id}" ${c.pagado ? 'checked' : ''}>
-        <span class="caja-check">${ICO_CHECK}</span>${c.pagado ? 'Pagado' : 'Pendiente'}
-      </label></td>
-      <td><label class="interruptor">
-        <input type="checkbox" data-camisa-entregada="${c.id}" ${c.entregado ? 'checked' : ''}>
-        <span class="caja-check">${ICO_CHECK}</span>${c.entregado ? 'Entregado' : 'Por entregar'}
-      </label></td>
-      <td><div class="insignias">${[1, 2, 3].map(n => `<label class="ins ${c.insignias >= n ? 'on' : ''}" title="${n}ª insignia${n > 1 && c.insignias < n - 1 ? ' (necesita la ' + (n - 1) + 'ª)' : ''}">
-        <input type="checkbox" data-insignia="${n}" data-camisa-ins="${c.id}" ${c.insignias >= n ? 'checked' : ''} ${c.insignias < n - 1 ? 'disabled' : ''}>${n}ª
-      </label>`).join('')}</div></td>
-      <td><button class="quitar" data-quitar-camisa="${c.id}" title="Eliminar pedido" aria-label="Eliminar pedido">✕</button></td>
-    </tr>`).join('')}</tbody>
-  </table></div>`;
+  const SECCIONES = ['castores', 'lobatos', 'scouts', 'escultas', 'rovers'];
+  const claseSeccion = s => {
+    const k = s.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    return SECCIONES.find(x => k.startsWith(x.slice(0, 4))) || (k.startsWith('clan') ? 'rovers' : '');
+  };
+
+  $('#lista-camisas').innerHTML = lista.map(c => `<article class="carne ${claseSeccion(c.seccion)}"><div class="carne-cuerpo">
+      <div class="carne-cab">
+        <div><h2>${esc(c.nombre)}</h2><div class="carne-sub">${esc(c.seccion)}</div></div>
+        ${c.entregado && c.pagado ? '<span class="sello">Al día</span>' : !c.pagado ? '<span class="sello debe">Debe</span>' : '<span class="sello pend">Por entregar</span>'}
+      </div>
+      <div class="datos-camisa">
+        <div><span>Talla</span><b>${esc(c.talla)}</b></div>
+        <div><span>Pago</span><b>${esc(c.metodo)}</b></div>
+        <div><span>Camisa</span><b>${c.entregado ? 'Dada' : 'Encargada'}</b></div>
+      </div>
+      <div class="marcas">
+        <label class="marca-check"><input type="checkbox" data-camisa="${c.id}" ${c.pagado ? 'checked' : ''}>${c.pagado ? 'Pagado' : 'Sin pagar'}</label>
+        <label class="marca-check entrega"><input type="checkbox" data-camisa-entregada="${c.id}" ${c.entregado ? 'checked' : ''}>${c.entregado ? 'Entregada' : 'Por entregar'}</label>
+      </div>
+      <div class="insignias separador">
+        <span class="rotulo">Insignias</span>
+        ${[1, 2, 3].map(n => `<label class="ins ${c.insignias >= n ? 'on' : ''}" title="${n}ª insignia${n > 1 && c.insignias < n - 1 ? ' (necesita la ' + (n - 1) + 'ª)' : ''}">
+          <input type="checkbox" data-insignia="${n}" data-camisa-ins="${c.id}" ${c.insignias >= n ? 'checked' : ''} ${c.insignias < n - 1 ? 'disabled' : ''} aria-label="${n}ª insignia de ${esc(c.nombre)}">${n}ª
+        </label>`).join('')}
+      </div>
+      <div class="pie-carne">
+        <span></span>
+        <button class="texto-boton" data-quitar-camisa="${c.id}">Eliminar pedido</button>
+      </div>
+    </div></article>`).join('');
 }
 
 $('#form-camisa').addEventListener('submit', e => {
@@ -610,6 +628,8 @@ $('#importar').addEventListener('change', async e => {
   }
   e.target.value = '';
 });
+
+document.querySelectorAll('.menu-lista .copia').forEach(b => b.addEventListener('click', () => { if (b.tagName === 'BUTTON') b.closest('details').open = false; }));
 
 pintarStock();
 pintarPersonas();

@@ -4,137 +4,107 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>Uniformidad · Gestión de stock</title>
+  <title>Uniformidad · Grupo Scout Mansaborá 738</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app">
-    <aside class="lateral">
+  <header class="cabecera">
+    <div class="envoltura cabecera-fila">
       <div class="marca">
-        <div class="logo">
+        <span class="marca-sello" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 3 3 6l2 4.5 3-1.4V21h8V9.1l3 1.4L21 6l-5.5-3c-.4 1.7-1.7 2.8-3.5 2.8S8.9 4.7 8.5 3z"/></svg>
+        </span>
+        <div>
+          <small>Grupo Scout Mansaborá 738</small>
+          <b>Uniformidad</b>
         </div>
-        <div><b>Uniformidad</b><small>Gestión de stock</small></div>
       </div>
 
-      <nav>
-        <p class="etiqueta-menu">Menú</p>
-        <button class="nav activa" data-tab="stock">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg>
-          Inventario
-        </button>
-        <button class="nav" data-tab="personas">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg>
-          Personas
-          <span class="contador" id="contador-personas">0</span>
-        </button>
-        <button class="nav" data-tab="camisas">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 3 3 6l2 4.5 3-1.4V21h8V9.1l3 1.4L21 6l-5.5-3c-.4 1.7-1.7 2.8-3.5 2.8S8.9 4.7 8.5 3z"/></svg>
-          Camisas
-          <span class="contador" id="contador-camisas">0</span>
-        </button>
+      <nav class="pestanas" aria-label="Secciones">
+        <button class="nav activa" data-tab="stock">Inventario</button>
+        <button class="nav" data-tab="personas">Personas <span class="contador" id="contador-personas">0</span></button>
+        <button class="nav" data-tab="camisas">Camisas <span class="contador" id="contador-camisas">0</span></button>
       </nav>
 
-      <div class="copias">
-        <p class="etiqueta-menu">Datos</p>
-        <button id="excel" class="copia">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
-          Exportar a Excel
-        </button>
-        <button id="sheets" class="copia">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>
-          Enviar a Google Sheets
-        </button>
-        <button id="sheets-url" class="copia enlace">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
-          Cambiar enlace de Sheets
-        </button>
-        <button id="exportar" class="copia">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-          Descargar
-        </button>
-        <label class="copia">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-          Restaurar
-          <input type="file" id="importar" accept=".json" hidden>
-        </label>
-      </div>
-    </aside>
-
-    <div class="contenido">
-      <header class="top">
-        <button id="toggle-menu" class="toggle-menu" aria-label="Mostrar u ocultar menú" aria-expanded="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-        </button>
-        <div class="titulos">
-          <h1 id="titulo">Inventario</h1>
-          <p id="subtitulo">Existencias de camisetas, sudaderas y pañoletas</p>
+      <details class="menu-datos">
+        <summary>Datos</summary>
+        <div class="menu-lista">
+          <button id="excel" class="copia">Exportar a Excel</button>
+          <button id="sheets" class="copia">Enviar a Google Sheets</button>
+          <button id="sheets-url" class="copia enlace">Cambiar enlace de Sheets</button>
+          <hr>
+          <button id="exportar" class="copia">Descargar copia de seguridad</button>
+          <label class="copia">Restaurar copia…<input type="file" id="importar" accept=".json" hidden></label>
         </div>
-        <div class="fecha" id="fecha"></div>
-      </header>
-
-      <main>
-        <section id="stock" class="panel">
-          <div id="stock-contenido"></div>
-        </section>
-
-        <section id="personas" class="panel" hidden>
-          <div class="barra-acciones">
-            <form id="form-persona">
-              <input id="nombre" placeholder="Nombre de la nueva persona" required autocomplete="off">
-              <button class="primario">Añadir persona</button>
-            </form>
-          </div>
-          <div class="herramientas">
-            <div class="buscador">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-              <input id="buscar" placeholder="Buscar persona…" autocomplete="off">
-            </div>
-            <div class="filtros" id="filtros"></div>
-          </div>
-          <div id="lista-personas"></div>
-        </section>
-        <section id="camisas" class="panel" hidden>
-          <div class="barra-acciones">
-            <form id="form-camisa" class="form-camisa">
-              <input id="c-nombre" placeholder="Nombre del niño/a" required autocomplete="off">
-              <select id="c-talla" aria-label="Talla"></select>
-              <input id="c-seccion" placeholder="Sección" required autocomplete="off">
-              <select id="c-metodo" aria-label="Método de pago"></select>
-              <label class="check-pago"><input type="checkbox" id="c-pagado"> Pagado</label>
-              <button class="primario">Añadir pedido</button>
-            </form>
-          </div>
-          <div class="herramientas">
-            <div class="buscador">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-              <input id="c-buscar" placeholder="Buscar niño o sección…" autocomplete="off">
-            </div>
-            <div class="filtros" id="c-filtros"></div>
-          </div>
-          <div id="lista-camisas"></div>
-        </section>
-      </main>
+      </details>
     </div>
+  </header>
+
+  <div class="envoltura">
+    <div class="portada">
+      <div>
+        <p class="antetitulo" id="fecha"></p>
+        <h1 id="titulo">Inventario</h1>
+        <p id="subtitulo">Existencias de camisetas, sudaderas y pañoletas</p>
+      </div>
+      <p class="leyenda" aria-label="Leyenda">
+        <span><i class="cuadro ok"></i>Entregado y pagado</span>
+        <span><i class="cuadro debe"></i>Debe</span>
+        <span><i class="cuadro pend"></i>Pendiente de stock</span>
+      </p>
+    </div>
+
+    <main>
+      <section id="stock" class="panel">
+        <div id="stock-contenido"></div>
+      </section>
+
+      <section id="personas" class="panel" hidden>
+        <div class="herramientas">
+          <form id="form-persona" class="alta">
+            <label class="oculto" for="nombre">Nombre de la nueva persona</label>
+            <input id="nombre" placeholder="Nombre de la nueva persona" required autocomplete="off">
+            <button class="primario">+ Nueva ficha</button>
+          </form>
+          <div class="buscador">
+            <label class="oculto" for="buscar">Buscar persona</label>
+            <input id="buscar" placeholder="Buscar persona…" autocomplete="off">
+          </div>
+        </div>
+        <div class="filtros" id="filtros"></div>
+        <div id="lista-personas" class="rejilla"></div>
+      </section>
+
+      <section id="camisas" class="panel" hidden>
+        <form id="form-camisa" class="alta alta-camisa">
+          <label class="campo">Niño/a<input id="c-nombre" placeholder="Nombre" required autocomplete="off"></label>
+          <label class="campo corto">Talla<select id="c-talla"></select></label>
+          <label class="campo">Sección<input id="c-seccion" placeholder="Lobatos, Scouts…" list="lista-secciones" required autocomplete="off"></label>
+          <label class="campo corto">Pago<select id="c-metodo"></select></label>
+          <label class="check-pago"><input type="checkbox" id="c-pagado"> Ya pagado</label>
+          <button class="primario">+ Nuevo pedido</button>
+          <datalist id="lista-secciones">
+            <option value="Castores"><option value="Lobatos"><option value="Scouts"><option value="Escultas"><option value="Rovers">
+          </datalist>
+        </form>
+        <div class="herramientas">
+          <div class="buscador">
+            <label class="oculto" for="c-buscar">Buscar niño o sección</label>
+            <input id="c-buscar" placeholder="Buscar niño o sección…" autocomplete="off">
+          </div>
+        </div>
+        <div class="filtros" id="c-filtros"></div>
+        <div id="resumen-camisas"></div>
+        <div id="lista-camisas" class="rejilla"></div>
+      </section>
+    </main>
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="app.js"></script>
-  <script>
-    (function () {
-      var app = document.querySelector('.app'), btn = document.getElementById('toggle-menu');
-      function poner(cerrado) {
-        app.classList.toggle('menu-cerrado', cerrado);
-        btn.setAttribute('aria-expanded', String(!cerrado));
-        try { localStorage.setItem('menuCerrado', cerrado ? '1' : '0'); } catch (e) {}
-      }
-      try { if (localStorage.getItem('menuCerrado') === '1') poner(true); } catch (e) {}
-      btn.addEventListener('click', function () { poner(!app.classList.contains('menu-cerrado')); });
-    })();
-  </script>
 </body>
 </html>
